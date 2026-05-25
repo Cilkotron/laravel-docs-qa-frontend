@@ -1,97 +1,105 @@
 <template>
-	<div class="min-h-screen bg-slate-950 text-slate-100">
-		<div class="max-w-3xl mx-auto px-6 py-12">
-			<!-- Header -->
-			<header class="mb-10">
-				<h1 class="text-4xl font-bold mb-2">Laravel Docs Q&A</h1>
-				<p class="text-slate-400">
-					Ask questions about Laravel — answers grounded in the official
-					documentation.
-				</p>
-			</header>
-
-			<!-- Input -->
-			<div class="mb-8">
-				<div class="flex gap-2">
-					<input
-                        ref="questionInput"
-						v-model="question"
-						type="text"
-						placeholder="How do I define a route in Laravel?"
-						class="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 disabled:opacity-50"
-						:disabled="isLoading"
-						@keydown.enter="askQuestion"
-					/>
-					<button
-						@click="askQuestion"
-						:disabled="isLoading || !question.trim()"
-						class="px-6 py-3 bg-slate-100 text-slate-900 font-medium rounded-lg hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-					>
-						{{ isLoading ? '...' : 'Ask' }}
-					</button>
-				</div>
-			</div>
-
-			<!-- Error -->
-			<div
-				v-if="error"
-				class="mb-6 px-4 py-3 bg-red-950 border border-red-800 rounded-lg text-red-200"
-			>
-				{{ error }}
-			</div>
-
-			<!-- Answer -->
-			<!-- Answer + New question button -->
-			<div v-if="answer || isLoading" class="mb-8">
-				<div class="flex items-center justify-between mb-3">
-					<h2
-						class="text-sm font-semibold text-slate-400 uppercase tracking-wider"
-					>
-						Answer
-					</h2>
-					<button
-						v-if="!isLoading"
-						@click="reset"
-						class="text-sm text-slate-400 hover:text-slate-100 transition-colors"
-					>
-						New question
-					</button>
-				</div>
-				<div class="prose prose-invert max-w-none">
-					<p class="text-slate-200 leading-relaxed whitespace-pre-wrap">
-						{{ answer
-						}}<span v-if="isLoading" class="text-slate-500 animate-pulse"
-							>▊</span
-						>
-					</p>
-				</div>
-			</div>
-
-			<!-- Sources -->
-			<div v-if="sources.length > 0" class="mb-8">
-				<h2
-					class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3"
-				>
-					Sources
-				</h2>
-				<ul class="space-y-2">
-					<li v-for="(source, index) in sources" :key="index" class="text-sm">
-						<a
-							:href="source.url"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="text-slate-300 hover:text-slate-100 hover:underline"
-						>
-							<span class="text-slate-500">[{{ index + 1 }}]</span>
-							{{ source.section || 'Laravel docs' }}
-						</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
+  <div class="min-h-screen bg-slate-950 text-slate-100 font-mono">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+      
+      <!-- Header -->
+      <header class="mb-12">
+        <h1 class="text-3xl font-bold tracking-tight mb-2">
+          laravel-docs-qa
+        </h1>
+        <p class="text-sm text-slate-400">
+          Ask questions about Laravel — answers grounded in the official documentation.
+        </p>
+      </header>
+      
+      <!-- Input -->
+      <div class="mb-10">
+        <div class="flex gap-2">
+          <input
+            v-model="question"
+            type="text"
+            placeholder="How do I define a route in Laravel?"
+            class="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-md
+                   text-slate-100 placeholder-slate-500 text-sm
+                   focus:outline-none focus:border-slate-300 focus:ring-1 focus:ring-slate-300
+                   disabled:opacity-50 transition-colors"
+            :disabled="isLoading"
+            @keydown.enter="askQuestion"
+          />
+          <button
+            @click="askQuestion"
+            :disabled="isLoading || !question.trim()"
+            class="px-5 py-3 bg-slate-100 text-slate-900 text-sm font-medium rounded-md
+                   hover:bg-white transition-colors
+                   disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {{ isLoading ? '...' : 'ask' }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- Error -->
+      <div
+        v-if="error"
+        class="mb-6 px-4 py-3 bg-red-950 border border-red-900 rounded-md text-red-200 text-sm"
+      >
+        {{ error }}
+      </div>
+      
+      <!-- Answer -->
+      <div v-if="answer || isLoading" class="mb-10">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            // answer
+          </h2>
+          <button
+            v-if="!isLoading"
+            @click="reset"
+            class="text-xs text-slate-400 hover:text-slate-100 transition-colors"
+          >
+            new question →
+          </button>
+        </div>
+        <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+          {{ answer }}<span v-if="isLoading" class="text-slate-500 animate-pulse">▊</span>
+        </p>
+      </div>
+      
+      <!-- Sources -->
+      <div v-if="sources.length > 0" class="mb-10">
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 pb-2 border-b border-slate-800">
+          // sources
+        </h2>
+        <ul class="space-y-2">
+          <li
+            v-for="(source, index) in sources"
+            :key="index"
+            class="text-sm"
+          >
+            <a
+              :href="source.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-slate-300 hover:text-slate-100 hover:underline inline-flex items-baseline gap-2"
+            >
+              <span class="text-slate-500">[{{ index + 1 }}]</span>
+              <span>{{ source.section || 'Laravel docs' }}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Footer -->
+      <footer class="mt-16 pt-6 border-t border-slate-800">
+        <p class="text-xs text-slate-500">
+          Built on Cloudflare Workers AI + Vectorize. 
+          <a href="https://github.com/Cilkotron/laravel-docs-qa-worker" target="_blank" class="hover:text-slate-100 underline">source</a>
+        </p>
+      </footer>
+      
+    </div>
+  </div>
 </template>
-
 <script lang="ts">
 	import { defineComponent } from 'vue';
 
