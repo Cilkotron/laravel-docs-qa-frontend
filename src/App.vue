@@ -60,9 +60,12 @@
             new question →
           </button>
         </div>
-        <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
-          {{ answer }}<span v-if="isLoading" class="text-slate-500 animate-pulse">▊</span>
-        </p>
+        <div>
+            <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-line" 
+                v-html="parsedAnswer">
+            </p>
+            <span v-if="isLoading" class="text-slate-500 animate-pulse">▊</span>
+        </div>
       </div>
       
       <!-- Sources -->
@@ -115,11 +118,19 @@
 		sources: Source[];
 		isLoading: boolean;
 		error: string | null;
+        copiedIndex: number | null;
+        copyTrigger: number;
+        codeBlocks: Record<number, string>;
 	}
+
+    declare global {
+        interface Window {
+            copyCode: (index: number) => void;
+        }
+    }
 
 	export default defineComponent({
 		name: 'App',
-
 		data(): Data {
 			return {
 				question: '',
@@ -127,9 +138,11 @@
 				sources: [],
 				isLoading: false,
 				error: null,
+                copiedIndex: null,
+                copyTrigger: 0, 
+                codeBlocks: {}, 
 			};
 		},
-
 		methods: {
 			async askQuestion() {
 				const q = this.question.trim();
@@ -216,10 +229,54 @@
 				this.answer = '';
 				this.sources = [];
 				this.error = null;
-				this.$nextTick(() => {
-					(this.$refs.questionInput as HTMLInputElement)?.focus();
-				});
+				// this.$nextTick(() => {
+				// 	(this.$refs.questionInput as HTMLInputElement)?.focus();
+				// });
 			},
 		},
+       computed: {
+            parsedAnswer() {
+                this.copyTrigger;
+                return this.answer.replace(
+                    /```(\w+)?\n?([\s\S]*?)```/g,
+                    (_match, _lang, code, offset) => `
+                        <div class="relative bg-slate-800 rounded-md">
+                            <button 
+                                onclick="copyCode(${offset})"
+                                class="absolute right-2 top-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                            >
+                                ${this.copiedIndex === offset ? 'Copied ✓' : 'Copy'}
+                            </button>
+                            <pre class="px-4 text-sm overflow-x-auto"><code>${code.trim()}</code></pre>
+                        </div>
+                    `
+                );
+            }
+        },
+        beforeUnmount() {
+            window.copyCode;
+        },
+        mounted() {
+            window.copyCode = (index: number) => {
+                navigator.clipboard.writeText(this.codeBlocks[index]);
+                this.copiedIndex = index;
+                this.copyTrigger++;
+                setTimeout(() => {
+                    this.copiedIndex = null;
+                    this.copyTrigger++;
+                }, 2000);
+            }
+        },
+         watch: {
+            answer() {
+                this.answer.replace(
+                    /```(\w+)?\n?([\s\S]*?)```/g,
+                    (_match, _lang, code, offset) => {
+                        this.codeBlocks[offset] = code.trim();
+                        return '';
+                    }
+                );
+            }
+        },
 	});
 </script>
